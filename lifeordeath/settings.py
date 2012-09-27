@@ -10,6 +10,8 @@ DATABASE = {
     'cleanup_timeout': 10
 }
 
-MONITOR = 60 * 1000
+MONITOR = 10 * 1000
 
 FORMAT = 'formats.geckoboard.rag_column'
+
+ALERT = 'alerts.stdout'
