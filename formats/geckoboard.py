@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 
-def geckoboard_rag_column(stamp):
+def rag_column(stamp):
     data = dict(item=([dict(value=None, text=None)] * 3))
     now = datetime.now()
     elapsed = now - stamp.timestamp

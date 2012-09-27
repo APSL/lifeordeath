@@ -11,3 +11,5 @@ DATABASE = {
 }
 
 MONITOR = 60 * 1000
+
+FORMAT = 'formats.geckoboard.rag_column'
