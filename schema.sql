@@ -11,7 +11,7 @@ CREATE TABLE "event" (
 CREATE TABLE "stamp" (
     "id" serial NOT NULL PRIMARY KEY,
     "event_id" integer NOT NULL REFERENCES "event" ("id") DEFERRABLE INITIALLY DEFERRED,
-    "timestamp" timestamp with time zone NOT NULL
+    "timestamp" timestamp without time zone NOT NULL
 )
 ;
 CREATE INDEX "stamp_event_id" ON "stamp" ("event_id");
