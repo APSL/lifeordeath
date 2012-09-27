@@ -5,7 +5,7 @@ CREATE TABLE "event" (
     "id" serial NOT NULL PRIMARY KEY,
     "key" varchar(255) NOT NULL,
     "frequency" integer NOT NULL,
-    "ambar" integer NOT NULL
+    "warning" integer NOT NULL
 )
 ;
 CREATE TABLE "stamp" (

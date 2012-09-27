@@ -1,98 +1,55 @@
-from datetime import datetime
-from collections import namedtuple
-
-import tornado.ioloop
-import tornado.web
-import momoko
 import json
 
+from tornado.web import Application, RequestHandler, HTTPError
+from tornado.ioloop import IOLoop, PeriodicCallback
 
-EVERY = 60 * 1000
+from models import get, update
+from settings import DEBUG, MONITOR
 
 
-Stamp = namedtuple('Event', 'key, timestamp, frequency, ambar')
-
-
-def dtencoder(obj):
+def encoder(obj):
     if hasattr(obj, 'isoformat'):
         return obj.isoformat()
     else:
         raise TypeError
 
 
-db = momoko.BlockingClient({
-    'host': 'localhost',
-    'database': 'lifeordeath',
-    'user': 'postgres',
-    'password': 'postgres',
-    'min_conn': 1,
-    'max_conn': 20,
-    'cleanup_timeout': 10
-})
-
-
-def get_all_last():
-    with db.connection as conn:
-        cursor = conn.cursor()
-        cursor.execute('SELECT event_id, max(timestamp) FROM stamp GROUP BY event_id;')
-        stamps = map(Stamp._make, cursor.fetchall())
-    return stamps
-
-
-def get_event(key):
-    with db.connection as conn:
-        cursor = conn.cursor()
-        cursor.execute('SELECT key, max(timestamp), frequency, ambar FROM stamp as s, event as e WHERE s.event_id=s.id AND key=\'%s\' GROUP BY key, frequency, ambar;' % key)
-        stamp = map(Stamp._make, cursor.fetchall())[0]
-    return stamp
-
-
-class MainHandler(tornado.web.RequestHandler):
+class MainHandler(RequestHandler):
 
     def get(self):
-        stamps = get_all_last()
-        self.write(json.dumps(stamps, default=dtencoder))
+        stamps = get()
+        self.write(json.dumps(stamps, default=encoder))
         self.finish()
 
 
-class EventHandler(tornado.web.RequestHandler):
+class EventHandler(RequestHandler):
 
     def get(self, key):
-        stamp = get_event(key)
-        self.write(json.dumps(stamp, default=dtencoder))
+        stamp = get(key)
+        if not stamp:
+            raise HTTPError(404)
+        self.write(json.dumps(stamp, default=encoder))
         self.finish()
 
-
-class FixtureHandler(tornado.web.RequestHandler):
-
-    def get(self):
-        with db.connection as conn:
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO event (key, frequency, ambar) VALUES ('daily-digest', 60, 40);")
-            cursor.execute("INSERT INTO event (key, frequency, ambar) VALUES ('backup', 120, 80);")
-            cursor.execute("INSERT INTO stamp (event_id, timestamp) VALUES (1, '%s');" % datetime.now())
-            cursor.execute("INSERT INTO stamp (event_id, timestamp) VALUES (1, '%s');" % datetime.now())
-            cursor.execute("INSERT INTO stamp (event_id, timestamp) VALUES (2, '%s');" % datetime.now())
+    def post(self, key):
+        if not update(key):
+            raise HTTPError(404)
         self.finish()
-
-
-next = {}
 
 
 def monitor():
-    for stamp in get_all_last():
+    for stamp in get():
         print stamp.key, stamp.timestamp
     print
 
 
-app = tornado.web.Application([
+app = Application([
     (r"/", MainHandler),
     (r"/([\w-]+)/?", EventHandler),
-    (r"/fixture", FixtureHandler),
-], debug=True)
+], debug=DEBUG)
 
 
 if __name__ == "__main__":
     app.listen(8888)
-    tornado.ioloop.PeriodicCallback(monitor, EVERY).start()
-    tornado.ioloop.IOLoop.instance().start()
+    PeriodicCallback(monitor, MONITOR).start()
+    IOLoop.instance().start()
