@@ -1,5 +1,4 @@
 BEGIN;
-\c "lifeordeath";
 DROP TABLE "stamp";
 DROP TABLE "event";
 CREATE TABLE "event" (
