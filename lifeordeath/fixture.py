@@ -1,4 +1,4 @@
-from models import db
+from lifeordeath.models import db
 
 
 if __name__ == "__main__":
