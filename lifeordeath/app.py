@@ -1,21 +1,12 @@
 import json
 
 from datetime import datetime, timedelta
-from importlib import import_module
 from tornado.web import Application, RequestHandler, HTTPError
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 from models import get, update
+from util import load_backend
 from settings import DEBUG, MONITOR, FORMAT, ALERT
-
-
-module, func = FORMAT.rsplit('.', 1)
-module = import_module(module)
-format = getattr(module, func)
-
-module, func = ALERT.rsplit('.', 1)
-module = import_module(module)
-alert = getattr(module, func)
 
 
 def encoder(obj):
@@ -55,6 +46,9 @@ def monitor():
         if elapsed >= timedelta(seconds=stamp.frequency):
             alert(stamp)
 
+
+format = load_backend(FORMAT)
+alert = load_backend(ALERT)
 
 app = Application([
     (r"/", MainHandler),
