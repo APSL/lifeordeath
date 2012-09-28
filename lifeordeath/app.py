@@ -1,7 +1,7 @@
 import json
 
 from datetime import datetime, timedelta
-from tornado.web import Application, RequestHandler, HTTPError
+from tornado.web import Application, RequestHandler, asynchronous
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 from models import get, update
@@ -11,34 +11,50 @@ from settings import ALERT, DEBUG, EVENTS, FORMAT, MONITOR
 
 class MainHandler(RequestHandler):
 
+    @asynchronous
     def get(self):
-        stamps = get()
+        get(callback=self.on_stamps_got)
+
+    def on_stamps_got(self, stamps):
         self.write(json.dumps(stamps, default=encoder))
         self.finish()
 
 
 class EventHandler(RequestHandler):
 
+    @asynchronous
     def get(self, key):
-        event = EVENTS.get(key)
-        if not event:
-            raise HTTPError(404)
-        stamp = get(key)
+        if key not in EVENTS:
+            self.send_error(404)
+            return
+        get(key, callback=self.on_stamp_got)
+
+    def on_stamp_got(self, stamp):
         if not stamp:
-            raise HTTPError(404)
+            self.send_error(404)
+            return
+        event = EVENTS[stamp.key]
         self.write(json.dumps(format(stamp, event), default=encoder))
         self.finish()
 
+    @asynchronous
     def post(self, key):
         if key not in EVENTS:
-            raise HTTPError(404)
-        update(key)
+            self.send_error(404)
+            return
+        update(key, callback=self.on_stamp_updated)
+
+    def on_stamp_updated(self):
         self.finish()
 
 
 def monitor():
+    get(callback=on_stamps_got)
+
+
+def on_stamps_got(stamps):
     now = datetime.now()
-    for stamp in get():
+    for stamp in stamps:
         if stamp.key in EVENTS:
             event = EVENTS[stamp.key]
             elapsed = now - stamp.timestamp
