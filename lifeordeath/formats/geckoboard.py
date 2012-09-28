@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 
 
-def rag_column(stamp):
+def rag_column(stamp, event):
     data = dict(item=([dict(value=None, text=None)] * 3))
     now = datetime.now()
     elapsed = now - stamp.timestamp
-    if elapsed >= timedelta(seconds=stamp.frequency):
+    if elapsed >= timedelta(seconds=event['frequency']):
         colour = 0
-    elif elapsed >= timedelta(seconds=stamp.warning):
+    elif elapsed >= timedelta(seconds=event['warning']):
         colour = 1
     else:
         colour = 2

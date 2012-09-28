@@ -10,6 +10,17 @@ DATABASE = {
     'cleanup_timeout': 10
 }
 
+EVENTS = {
+    'backup': {
+        'frequency': 120,
+        'warning': 40
+    },
+    'daily-digest': {
+        'frequency': 60,
+        'warning': 40
+    }
+}
+
 MONITOR = 10 * 1000
 
 FORMAT = 'formats.geckoboard.rag_column'
