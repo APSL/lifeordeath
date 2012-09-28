@@ -5,15 +5,8 @@ from tornado.web import Application, RequestHandler, HTTPError
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 from models import get, update
-from util import load_backend
+from util import load_backend, encoder
 from settings import DEBUG, MONITOR, FORMAT, ALERT
-
-
-def encoder(obj):
-    if hasattr(obj, 'isoformat'):
-        return obj.isoformat()
-    else:
-        raise TypeError
 
 
 class MainHandler(RequestHandler):
