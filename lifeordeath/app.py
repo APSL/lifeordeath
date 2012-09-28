@@ -1,6 +1,7 @@
 import json
 
 from datetime import datetime, timedelta
+from tornado import gen
 from tornado.web import Application, RequestHandler, asynchronous
 from tornado.ioloop import IOLoop, PeriodicCallback
 
@@ -12,10 +13,9 @@ from settings import ALERT, DEBUG, EVENTS, FORMAT, MONITOR
 class MainHandler(RequestHandler):
 
     @asynchronous
+    @gen.engine
     def get(self):
-        get(callback=self.on_stamps_got)
-
-    def on_stamps_got(self, stamps):
+        stamps = yield gen.Task(get)
         self.write(json.dumps(stamps, default=encoder))
         self.finish()
 
@@ -23,13 +23,12 @@ class MainHandler(RequestHandler):
 class EventHandler(RequestHandler):
 
     @asynchronous
+    @gen.engine
     def get(self, key):
         if key not in EVENTS:
             self.send_error(404)
             return
-        get(key, callback=self.on_stamp_got)
-
-    def on_stamp_got(self, stamp):
+        stamp = yield gen.Task(get, key)
         if not stamp:
             self.send_error(404)
             return
@@ -38,22 +37,19 @@ class EventHandler(RequestHandler):
         self.finish()
 
     @asynchronous
+    @gen.engine
     def post(self, key):
         if key not in EVENTS:
             self.send_error(404)
             return
-        update(key, callback=self.on_stamp_updated)
-
-    def on_stamp_updated(self):
+        yield gen.Task(update, key)
         self.finish()
 
 
+@gen.engine
 def monitor():
-    get(callback=on_stamps_got)
-
-
-def on_stamps_got(stamps):
     now = datetime.now()
+    stamps = yield gen.Task(get)
     for stamp in stamps:
         if stamp.key in EVENTS:
             event = EVENTS[stamp.key]
