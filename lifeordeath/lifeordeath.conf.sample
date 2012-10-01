@@ -1,9 +1,9 @@
-debug = True
+debug = False
 
 database = {
     'host': 'localhost',
     'database': 'lifeordeath',
-    'user': 'jaime',
+    'user': 'lifeordeath',
     'password': '',
     'min_conn': 1,
     'max_conn': 20,
@@ -21,7 +21,7 @@ events = {
     }
 }
 
-monitor = 10 * 1000
+monitor = 60 * 1000
 
 format = 'formats.geckoboard.rag_column'
 
