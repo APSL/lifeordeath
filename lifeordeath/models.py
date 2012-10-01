@@ -1,17 +1,12 @@
 from functools import partial
 from datetime import datetime
 from collections import namedtuple
-from momoko import AsyncClient
 
-from settings import DATABASE
-
-
-db = AsyncClient(DATABASE)
 
 Stamp = namedtuple('Stamp', 'key, timestamp')
 
 
-def get(key=None, callback=None):
+def get(app, key=None, callback=None):
 
     def on_stamp_got(callback, cursor):
         result = cursor.fetchone()
@@ -23,17 +18,17 @@ def get(key=None, callback=None):
         callback(stamps)
 
     if key:
-        db.execute('SELECT key, max(timestamp) FROM stamp WHERE key=%s GROUP BY key;', (key,),
-                   callback=partial(on_stamp_got, callback))
+        app.db.execute('SELECT key, max(timestamp) FROM stamp WHERE key=%s GROUP BY key;', (key,),
+                       callback=partial(on_stamp_got, callback))
     else:
-        db.execute('SELECT key, max(timestamp) FROM stamp GROUP BY key;',
-                   callback=partial(on_stamps_got, callback))
+        app.db.execute('SELECT key, max(timestamp) FROM stamp GROUP BY key;',
+                       callback=partial(on_stamps_got, callback))
 
 
-def update(key, callback=None):
+def update(app, key, callback=None):
 
     def on_stamp_updated(callback, cursor):
         callback()
 
-    db.execute('INSERT INTO stamp VALUES (%s, %s);', (key, datetime.now()),
-               callback=partial(on_stamp_updated, callback))
+    app.db.execute('INSERT INTO stamp VALUES (%s, %s);', (key, datetime.now()),
+                   callback=partial(on_stamp_updated, callback))

@@ -1,6 +1,7 @@
 import json
 
 from datetime import datetime, timedelta
+from momoko import AsyncClient
 from tornado import gen
 from tornado.web import Application, RequestHandler, asynchronous
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -17,7 +18,7 @@ class MainHandler(RequestHandler):
     @asynchronous
     @gen.engine
     def get(self):
-        stamps = yield gen.Task(get)
+        stamps = yield gen.Task(get, app)
         self.write(json.dumps(stamps, default=encoder))
         self.finish()
 
@@ -30,7 +31,7 @@ class EventHandler(RequestHandler):
         if key not in cfg.events:
             self.send_error(404)
             return
-        stamp = yield gen.Task(get, key)
+        stamp = yield gen.Task(get, app, key)
         if not stamp:
             self.send_error(404)
             return
@@ -44,14 +45,14 @@ class EventHandler(RequestHandler):
         if key not in cfg.events:
             self.send_error(404)
             return
-        yield gen.Task(update, key)
+        yield gen.Task(update, app, key)
         self.finish()
 
 
 @gen.engine
 def monitor():
     now = datetime.now()
-    stamps = yield gen.Task(get)
+    stamps = yield gen.Task(get, app)
     for stamp in stamps:
         if stamp.key in cfg.events:
             event = cfg.events[stamp.key]
@@ -70,6 +71,7 @@ app = Application([
     (r"/([\w-]+)/?", EventHandler),
 ], debug=cfg.debug)
 
+app.db = AsyncClient(cfg.database)
 
 app.listen(cfg.port)
 PeriodicCallback(monitor, cfg.monitor).start()
