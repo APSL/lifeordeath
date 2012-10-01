@@ -25,4 +25,6 @@ monitor = 60 * 1000
 
 format = 'formats.geckoboard.rag_column'
 
-alert = 'alerts.sentry'
+alert = 'alerts.stdout'
+
+alert_options = {}

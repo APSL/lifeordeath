@@ -10,6 +10,7 @@ define('port', default=8888)
 define('monitor', default=60 * 1000)
 define('format', default='formats.geckoboard.rag_column')
 define('alert', default='alerts.stdout')
+define('alert_options', default={})
 define('events', default={})
 define('database', default={
     'host': 'localhost',

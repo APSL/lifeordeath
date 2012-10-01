@@ -58,7 +58,7 @@ def monitor():
             event = cfg.events[stamp.key]
             elapsed = now - stamp.timestamp
             if elapsed >= timedelta(seconds=event['frequency']):
-                alert(stamp)
+                alert(stamp, **cfg.alert_options)
 
 
 parse_config_file('lifeordeath.conf')
