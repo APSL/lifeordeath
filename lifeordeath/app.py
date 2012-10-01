@@ -61,7 +61,7 @@ def monitor():
                 alert(stamp, **cfg.alert_options)
 
 
-parse_config_file('lifeordeath.conf')
+parse_config_file('/etc/lifeordeath.conf')
 parse_command_line()
 format = load_backend(cfg.format)
 alert = load_backend(cfg.alert)
