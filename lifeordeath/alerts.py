@@ -1,7 +1,8 @@
 from urllib import urlencode
 from tornado.httpclient import AsyncHTTPClient
 
-from settings import DEBUG
+import settings
+from tornado.options import options as cfg
 
 
 def stdout(stamp):
@@ -9,8 +10,8 @@ def stdout(stamp):
 
 
 def sentry(stamp):
-    server = 'test' if DEBUG else 'www'
-    level = 'info' if DEBUG else 'fatal'
+    server = 'test' if cfg.debug else 'www'
+    level = 'info' if cfg.debug else 'fatal'
     message = 'lifeordeath alert: %s' % stamp.key
     url = 'https://%s.streetlife.com/sentry-endpoint/?key=str33tl1f3s3ntry' % server
     args = {'logger_name': 'general', 'level': level, 'message': message}

@@ -4,10 +4,12 @@ from datetime import datetime, timedelta
 from tornado import gen
 from tornado.web import Application, RequestHandler, asynchronous
 from tornado.ioloop import IOLoop, PeriodicCallback
+from tornado.options import parse_config_file, parse_command_line
 
+import settings
+from tornado.options import options as cfg
 from models import get, update
 from util import load_backend, encoder
-from settings import ALERT, DEBUG, EVENTS, FORMAT, MONITOR
 
 
 class MainHandler(RequestHandler):
@@ -25,21 +27,21 @@ class EventHandler(RequestHandler):
     @asynchronous
     @gen.engine
     def get(self, key):
-        if key not in EVENTS:
+        if key not in cfg.events:
             self.send_error(404)
             return
         stamp = yield gen.Task(get, key)
         if not stamp:
             self.send_error(404)
             return
-        event = EVENTS[stamp.key]
+        event = cfg.events[stamp.key]
         self.write(json.dumps(format(stamp, event), default=encoder))
         self.finish()
 
     @asynchronous
     @gen.engine
     def post(self, key):
-        if key not in EVENTS:
+        if key not in cfg.events:
             self.send_error(404)
             return
         yield gen.Task(update, key)
@@ -51,23 +53,24 @@ def monitor():
     now = datetime.now()
     stamps = yield gen.Task(get)
     for stamp in stamps:
-        if stamp.key in EVENTS:
-            event = EVENTS[stamp.key]
+        if stamp.key in cfg.events:
+            event = cfg.events[stamp.key]
             elapsed = now - stamp.timestamp
             if elapsed >= timedelta(seconds=event['frequency']):
                 alert(stamp)
 
 
-format = load_backend(FORMAT)
-alert = load_backend(ALERT)
+parse_config_file('lifeordeath.conf')
+parse_command_line()
+format = load_backend(cfg.format)
+alert = load_backend(cfg.alert)
 
 app = Application([
     (r"/", MainHandler),
     (r"/([\w-]+)/?", EventHandler),
-], debug=DEBUG)
+], debug=cfg.debug)
 
 
-if __name__ == "__main__":
-    app.listen(8888)
-    PeriodicCallback(monitor, MONITOR).start()
-    IOLoop.instance().start()
+app.listen(cfg.port)
+PeriodicCallback(monitor, cfg.monitor).start()
+IOLoop.instance().start()

@@ -1,28 +1,18 @@
-DEBUG = True
+from tornado.options import define
 
-DATABASE = {
+
+define('debug', default=True)
+define('port', default=8888)
+define('monitor', default=60 * 1000)
+define('format', default='formats.geckoboard.rag_column')
+define('alert', default='alerts.stdout')
+define('events', default={})
+define('database', default={
     'host': 'localhost',
     'database': 'lifeordeath',
-    'user': 'jaime',
+    'user': 'lifeordeath',
     'password': '',
     'min_conn': 1,
     'max_conn': 20,
     'cleanup_timeout': 10
-}
-
-EVENTS = {
-    'backup': {
-        'frequency': 120,
-        'warning': 40
-    },
-    'daily-digest': {
-        'frequency': 60,
-        'warning': 40
-    }
-}
-
-MONITOR = 10 * 1000
-
-FORMAT = 'formats.geckoboard.rag_column'
-
-ALERT = 'alerts.stdout'
+})
