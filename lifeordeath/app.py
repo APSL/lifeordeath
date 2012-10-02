@@ -1,3 +1,4 @@
+import os
 import json
 
 from datetime import datetime, timedelta
@@ -11,6 +12,9 @@ import settings
 from tornado.options import options as cfg
 from models import get, update
 from util import load_backend, encoder
+
+
+CONFIG = '/etc/lifeordeath.conf'
 
 
 class MainHandler(RequestHandler):
@@ -61,8 +65,10 @@ def monitor():
                 alert(stamp, **cfg.alert_options)
 
 
-parse_config_file('/etc/lifeordeath.conf')
+if os.path.exists(CONFIG):
+    parse_config_file(CONFIG)
 parse_command_line()
+
 format = load_backend(cfg.format)
 alert = load_backend(cfg.alert)
 
