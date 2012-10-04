@@ -55,13 +55,29 @@ class EventHandler(RequestHandler):
 
 @gen.engine
 def monitor():
-    now = datetime.now()
     stamps = yield gen.Task(get, app)
+    if not stamps:
+        return
+
+    now = datetime.now()
+
+    if cfg.silence:
+        start, end = cfg.silence.split('-')
+        shour, smin = map(int, start.split(':'))
+        ehour, emin = map(int, end.split(':'))
+        start = now.replace(hour=shour, minute=smin, second=0, microsecond=0)
+        end = now.replace(hour=ehour, minute=emin, second=0, microsecond=0)
+        if start <= now <= end:
+            return
+
     for stamp in stamps:
         if stamp.key in cfg.events:
-            event = cfg.events[stamp.key]
+            threshold = cfg.events[stamp.key]['frequency']
+            if cfg.silence and now > end and stamp.timestamp < end:
+                threshold += (end - max(start, stamp.timestamp)).seconds
+                threshold -= (start - min(start, stamp.timestamp)).seconds
             elapsed = now - stamp.timestamp
-            if elapsed >= timedelta(seconds=event['frequency']):
+            if elapsed >= timedelta(seconds=threshold):
                 alert(stamp, **cfg.alert_options)
 
 

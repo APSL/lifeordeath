@@ -23,6 +23,8 @@ events = {
 
 monitor = 60 * 1000
 
+silence = '02:00-06:00'
+
 format = 'formats.geckoboard.rag_column'
 
 alert = 'alerts.stdout'
