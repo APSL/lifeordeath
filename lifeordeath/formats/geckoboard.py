@@ -1,13 +1,31 @@
 from datetime import datetime, timedelta
 
+import settings
+from tornado.options import options as cfg
+
 
 def rag_column(stamp, event):
     data = dict(item=([dict(value=None, text=None)] * 3))
+
     now = datetime.now()
+    frequency = event['frequency']
+    warning = event['warning']
+
+    if cfg.silence:
+        start, end = cfg.silence.split('-')
+        shour, smin = map(int, start.split(':'))
+        ehour, emin = map(int, end.split(':'))
+        start = now.replace(hour=shour, minute=smin, second=0, microsecond=0)
+        end = now.replace(hour=ehour, minute=emin, second=0, microsecond=0)
+        if now >= start and stamp.timestamp < end:
+            extra = (end - max(start, stamp.timestamp)).seconds
+            frequency += extra
+            warning += extra
+
     elapsed = now - stamp.timestamp
-    if elapsed >= timedelta(seconds=event['frequency']):
+    if elapsed >= timedelta(seconds=frequency):
         colour = 0
-    elif elapsed >= timedelta(seconds=event['warning']):
+    elif elapsed >= timedelta(seconds=warning):
         colour = 1
     else:
         colour = 2
