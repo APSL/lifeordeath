@@ -11,7 +11,7 @@ from tornado.options import parse_config_file, parse_command_line
 import settings
 from tornado.options import options as cfg
 from models import get, update
-from util import load_backend, encoder, silence_gap
+from util import load_backend, encoder, silence_gap, thresholds
 
 
 CONFIG = '/etc/lifeordeath.conf'
@@ -39,7 +39,11 @@ class EventHandler(RequestHandler):
         if not stamp:
             self.send_error(404)
             return
-        self.write(json.dumps(format(stamp), default=encoder))
+        now = datetime.now()
+        frequency, warning = thresholds(stamp, now)
+        elapsed = now - stamp.timestamp
+        data = format(stamp, frequency, warning, elapsed)
+        self.write(json.dumps(data, default=encoder))
         self.finish()
 
     @asynchronous
