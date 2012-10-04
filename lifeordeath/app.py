@@ -39,8 +39,7 @@ class EventHandler(RequestHandler):
         if not stamp:
             self.send_error(404)
             return
-        event = cfg.events[stamp.key]
-        self.write(json.dumps(format(stamp, event), default=encoder))
+        self.write(json.dumps(format(stamp), default=encoder))
         self.finish()
 
     @asynchronous

@@ -5,12 +5,12 @@ from tornado.options import options as cfg
 from util import silence_gap
 
 
-def rag_column(stamp, event):
+def rag_column(stamp):
     data = dict(item=([dict(value=None, text=None)] * 3))
 
     now = datetime.now()
-    frequency = event['frequency']
-    warning = event['warning']
+    frequency = cfg.events[stamp.key]['frequency']
+    warning = cfg.events[stamp.key]['warning']
 
     if cfg.silence:
         start, end = silence_gap(now)
