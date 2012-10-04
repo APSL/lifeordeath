@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import settings
 from tornado.options import options as cfg
+from util import silence_gap
 
 
 def rag_column(stamp, event):
@@ -12,11 +13,7 @@ def rag_column(stamp, event):
     warning = event['warning']
 
     if cfg.silence:
-        start, end = cfg.silence.split('-')
-        shour, smin = map(int, start.split(':'))
-        ehour, emin = map(int, end.split(':'))
-        start = now.replace(hour=shour, minute=smin, second=0, microsecond=0)
-        end = now.replace(hour=ehour, minute=emin, second=0, microsecond=0)
+        start, end = silence_gap(now)
         if now >= start and stamp.timestamp < end:
             extra = (end - max(start, stamp.timestamp)).seconds
             frequency += extra

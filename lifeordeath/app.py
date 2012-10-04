@@ -11,7 +11,7 @@ from tornado.options import parse_config_file, parse_command_line
 import settings
 from tornado.options import options as cfg
 from models import get, update
-from util import load_backend, encoder
+from util import load_backend, encoder, silence_gap
 
 
 CONFIG = '/etc/lifeordeath.conf'
@@ -62,11 +62,7 @@ def monitor():
     now = datetime.now()
 
     if cfg.silence:
-        start, end = cfg.silence.split('-')
-        shour, smin = map(int, start.split(':'))
-        ehour, emin = map(int, end.split(':'))
-        start = now.replace(hour=shour, minute=smin, second=0, microsecond=0)
-        end = now.replace(hour=ehour, minute=emin, second=0, microsecond=0)
+        start, end = silence_gap(now)
         if start <= now <= end:
             return
 
