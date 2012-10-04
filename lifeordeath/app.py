@@ -71,11 +71,9 @@ def monitor():
 
     for stamp in stamps:
         if stamp.key in cfg.events:
-            threshold = cfg.events[stamp.key]['frequency']
-            if cfg.silence and now > end and stamp.timestamp < end:
-                threshold += (end - max(start, stamp.timestamp)).seconds
+            frequency, _ = thresholds(stamp, now, start, end)
             elapsed = now - stamp.timestamp
-            if elapsed >= timedelta(seconds=threshold):
+            if elapsed >= timedelta(seconds=frequency):
                 alert(stamp, **cfg.alert_options)
 
 
