@@ -7,6 +7,8 @@ from tornado.options import define
 
 define('debug', default=False)
 define('port', default=8888)
+define('auth_user', default=None)
+define('auth_pass', default=None)
 define('monitor', default=60 * 1000)
 define('silence', default='')
 define('format', default='formats.geckoboard.rag_column')

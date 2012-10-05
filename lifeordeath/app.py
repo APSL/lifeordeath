@@ -11,12 +11,13 @@ from tornado.options import parse_config_file, parse_command_line
 import settings
 from tornado.options import options as cfg
 from models import get, update
-from util import load_backend, encoder, silence_gap, thresholds
+from util import load_backend, encoder, silence_gap, thresholds, require_basic_auth
 
 
 CONFIG = '/etc/lifeordeath.conf'
 
 
+@require_basic_auth
 class MainHandler(RequestHandler):
 
     @asynchronous
@@ -27,6 +28,7 @@ class MainHandler(RequestHandler):
         self.finish()
 
 
+@require_basic_auth
 class EventHandler(RequestHandler):
 
     @asynchronous
