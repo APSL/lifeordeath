@@ -9,5 +9,5 @@ def rag_column(stamp, frequency, warning, elapsed):
         colour = 1
     else:
         colour = 2
-    data['item'][colour] = {'value': elapsed.seconds / 60, 'text': 'mins ago'}
+    data['item'][colour] = {'value': elapsed.total_seconds() / 60, 'text': 'mins ago'}
     return data
