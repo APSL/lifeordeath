@@ -9,6 +9,10 @@ def rag_column(stamp, frequency, warning, elapsed):
         colour = 1
     else:
         colour = 2
-    minutes = elapsed.days * 24 * 60 + elapsed.seconds / 60
-    data['item'][colour] = {'value': minutes, 'text': 'mins ago'}
+    time = elapsed.days * 24 * 60 + elapsed.seconds / 60
+    ago = 'mins ago'
+    if time > 300:
+        time = time / 60
+        ago = 'hours ago'
+    data['item'][colour] = {'value': time, 'text': ago}
     return data
