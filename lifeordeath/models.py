@@ -32,3 +32,14 @@ def update(app, key, callback=None):
 
     app.db.execute('INSERT INTO stamp VALUES (%s, %s);', (key, datetime.now()),
                    callback=partial(on_stamp_updated, callback))
+
+
+def get_stats(app, key, days, callback=None):
+
+    def on_stats_got(callback, cursor):
+        callback(cursor.fetchall())
+
+    app.db.execute("SELECT date(timestamp) as day, count(*) FROM stamp "
+                   "WHERE key=%s AND date(timestamp) > current_date - interval %s "
+                   "GROUP BY day ORDER BY day;", (key, '%s day' % days),
+                   callback=partial(on_stats_got, callback))

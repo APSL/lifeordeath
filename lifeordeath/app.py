@@ -10,7 +10,7 @@ from tornado.options import parse_config_file, parse_command_line
 
 import settings
 from tornado.options import options as cfg
-from models import get, update
+from models import get, get_stats, update
 from util import load_backend, encoder, silence_gap, thresholds, require_basic_auth
 
 
@@ -58,6 +58,21 @@ class EventHandler(RequestHandler):
         self.finish()
 
 
+@require_basic_auth
+class StatsHandler(RequestHandler):
+
+    @asynchronous
+    @gen.engine
+    def get(self, key):
+        if key not in cfg.events:
+            self.send_error(404)
+            return
+        days = int(self.get_argument('days', '30'))
+        data = yield gen.Task(get_stats, app, key, days)
+        self.write(json.dumps(data, default=encoder))
+        self.finish()
+
+
 @gen.engine
 def monitor():
     stamps = yield gen.Task(get, app)
@@ -89,6 +104,7 @@ alert = load_backend(cfg.alert)
 app = Application([
     (r"/", MainHandler),
     (r"/([\w-]+)/?", EventHandler),
+    (r"/([\w-]+)/stats/?", StatsHandler),
 ], debug=cfg.debug)
 
 app.db = AsyncClient(cfg.database)
