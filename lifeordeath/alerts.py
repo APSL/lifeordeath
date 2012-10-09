@@ -10,7 +10,7 @@ def stdout(stamp):
 
 
 def sentry(stamp, url):
-    level = 'info' if cfg.debug else 'fatal'
+    level = 'info' if cfg.debug else 'error'
     message = 'lifeordeath alert: %s' % stamp.key
     args = {'logger_name': 'general', 'level': level, 'message': message}
     http = AsyncHTTPClient()
