@@ -68,7 +68,7 @@ def thresholds(stamp, now, start=None, end=None):
         if start is None or end is None:
             start, end = silence_gap(now)
         if now >= start and stamp.timestamp < end:
-            extra = (end - max(start, stamp.timestamp)).seconds
+            extra = (min(end, now) - max(start, stamp.timestamp)).seconds
             frequency += extra
             warning += extra
 
