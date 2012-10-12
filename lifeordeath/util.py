@@ -61,7 +61,7 @@ def silence_gap(now):
 
 
 def thresholds(stamp, now, start=None, end=None):
-    frequency = cfg.events[stamp.key]['frequency']
+    error = cfg.events[stamp.key]['error']
     warning = cfg.events[stamp.key]['warning']
 
     if cfg.silence:
@@ -69,10 +69,10 @@ def thresholds(stamp, now, start=None, end=None):
             start, end = silence_gap(now)
         if now >= start and stamp.timestamp < end:
             extra = (min(end, now) - max(start, stamp.timestamp)).seconds
-            frequency += extra
+            error += extra
             warning += extra
 
-    return frequency, warning
+    return error, warning
 
 
 #

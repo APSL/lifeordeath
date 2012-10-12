@@ -42,9 +42,9 @@ class EventHandler(RequestHandler):
             self.send_error(404)
             return
         now = datetime.now()
-        frequency, warning = thresholds(stamp, now)
+        error, warning = thresholds(stamp, now)
         elapsed = now - stamp.timestamp
-        data = format(stamp, frequency, warning, elapsed)
+        data = format(stamp, error, warning, elapsed)
         self.write(json.dumps(data, default=encoder))
         self.finish()
 
@@ -88,9 +88,9 @@ def monitor():
 
     for stamp in stamps:
         if stamp.key in cfg.events:
-            frequency, _ = thresholds(stamp, now, start, end)
+            error, _ = thresholds(stamp, now, start, end)
             elapsed = now - stamp.timestamp
-            if elapsed >= timedelta(seconds=frequency):
+            if elapsed >= timedelta(seconds=error):
                 alert(stamp, **cfg.alert_options)
 
 

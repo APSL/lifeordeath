@@ -1,9 +1,9 @@
 from datetime import timedelta
 
 
-def rag_column(stamp, frequency, warning, elapsed):
+def rag_column(stamp, error, warning, elapsed):
     data = dict(item=([dict(value=None, text=None)] * 3))
-    if elapsed >= timedelta(seconds=frequency):
+    if elapsed >= timedelta(seconds=error):
         colour = 0
     elif elapsed >= timedelta(seconds=warning):
         colour = 1
