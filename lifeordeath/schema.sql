@@ -5,4 +5,5 @@ CREATE TABLE "stamp" (
     "timestamp" timestamp without time zone NOT NULL
 )
 ;
+CREATE INDEX "stamp_key_idx" ON stamp(key);
 COMMIT;
