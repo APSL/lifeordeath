@@ -1,5 +1,4 @@
 from urllib import urlencode
-from urlparse import urlparse
 from tornado.httpclient import AsyncHTTPClient
 
 from tornado.options import options as cfg
@@ -14,7 +13,4 @@ def sentry(stamp, url):
     message = 'lifeordeath alert: %s' % stamp.key
     args = {'logger_name': 'general', 'level': level, 'message': message}
     http = AsyncHTTPClient()
-    http.fetch(url, method='POST',
-                    headers={'Host': urlparse(url).netloc},
-                    body=urlencode(args),
-                    callback=None)
+    http.fetch(url, method='POST', body=urlencode(args), callback=None)
