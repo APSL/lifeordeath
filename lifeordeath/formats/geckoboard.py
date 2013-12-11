@@ -14,7 +14,7 @@ def rag_column(stamp, error, warning, elapsed):
     if time > 72 * 60:
         time = time / (60 * 24)
         ago = 'days ago'
-    elif time > 5 * 60:
+    elif time > 3 * 60:
         time = time / 60
         ago = 'hours ago'
     data['item'][colour] = {'value': time, 'text': ago}
