@@ -1,5 +1,4 @@
 from functools import partial
-from datetime import datetime
 from collections import namedtuple
 
 
@@ -30,16 +29,8 @@ def update(app, key, callback=None):
     def on_stamp_updated(callback, cursor):
         callback()
 
-    app.db.execute('INSERT INTO stamp VALUES (%s, %s);', (key, datetime.now()),
+    app.db.execute('UPDATE stamp set timestamp=current_timestamp WHERE key=%s; '
+                   'INSERT INTO stamp (key, timestamp) '
+                          'SELECT %s, current_timestamp '
+                          'WHERE NOT EXISTS (SELECT 1 FROM stamp WHERE key=%s);', (key, key, key),
                    callback=partial(on_stamp_updated, callback))
-
-
-def get_stats(app, key, days, callback=None):
-
-    def on_stats_got(callback, cursor):
-        callback(cursor.fetchall())
-
-    app.db.execute("SELECT date(timestamp) as day, count(*) FROM stamp "
-                   "WHERE key=%s AND date(timestamp) > current_date - interval %s "
-                   "GROUP BY day ORDER BY day;", (key, '%s day' % days),
-                   callback=partial(on_stats_got, callback))
