@@ -29,8 +29,9 @@ def update(app, key, callback=None):
     def on_stamp_updated(callback, cursor):
         callback()
 
-    app.db.execute('UPDATE stamp set timestamp=current_timestamp WHERE key=%s; '
-                   'INSERT INTO stamp (key, timestamp) '
-                          'SELECT %s, current_timestamp '
-                          'WHERE NOT EXISTS (SELECT 1 FROM stamp WHERE key=%s);', (key, key, key),
-                   callback=partial(on_stamp_updated, callback))
+    app.db.transaction((
+      ('UPDATE stamp set timestamp=current_timestamp WHERE key=%s;', (key,)),
+      ('INSERT INTO stamp (key, timestamp) '
+              'SELECT %s, current_timestamp '
+              'WHERE NOT EXISTS (SELECT 1 FROM stamp WHERE key=%s);'), (key, key)),
+      callback=partial(on_stamp_updated, callback))
