@@ -14,6 +14,7 @@ define('silence', default='')
 define('format', default='formats.geckoboard.rag_column')
 define('alert', default='alerts.stdout')
 define('alert_options', default={})
+define('alert_duration', default=None)
 define('events', default={})
 define('database', default={
     'host': 'localhost',

@@ -30,3 +30,5 @@ format = 'formats.geckoboard.rag_column'
 alert = 'alerts.stdout'
 
 alert_options = {}
+
+alert_duration = 10 * 60

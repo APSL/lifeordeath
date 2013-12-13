@@ -74,7 +74,7 @@ def monitor():
         if stamp.key in cfg.events:
             error, _ = thresholds(stamp, now, start, end)
             elapsed = now - stamp.timestamp
-            if elapsed >= timedelta(seconds=error):
+            if elapsed >= timedelta(seconds=error) and elapsed <= alert_duration:
                 alert(stamp, **cfg.alert_options)
 
 
@@ -84,6 +84,7 @@ parse_command_line()
 
 format = load_backend(cfg.format)
 alert = load_backend(cfg.alert)
+alert_duration = timedelta(seconds=cfg.alert_duration) if cfg.alert_duration else timedelta.max
 
 app = Application([
     (r"/", MainHandler),
